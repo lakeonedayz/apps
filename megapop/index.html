@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#ef4444">
+  <title>Rádio Mega Pop</title>
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- Google AdSense SDK - Carregamento assíncrono otimizado -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3940256099942544" crossorigin="anonymous"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: radial-gradient(circle at 30% 10%, #0f172a, #020617);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      color: #ffffff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* App Container */
+    .app-container {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 0 16px 20px 16px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Menu Button */
+    .menu-btn {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(135deg, #ef4444, #b91c1c);
+      border: none;
+      border-radius: 50%;
+      font-size: 24px;
+      color: white;
+      cursor: pointer;
+      z-index: 1002;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+      transition: all 0.2s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .menu-btn:active {
+      transform: scale(0.92);
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -100%;
+      width: 280px;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.98);
+      backdrop-filter: blur(20px);
+      padding: 80px 20px 30px;
+      transition: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+      z-index: 1003;
+      border-right: 2px solid rgba(239, 68, 68, 0.3);
+      box-shadow: 4px 0 25px rgba(0, 0, 0, 0.5);
+    }
+
+    .sidebar.active {
+      left: 0;
+    }
+
+    .sidebar h3 {
+      font-size: 26px;
+      margin-bottom: 40px;
+      background: linear-gradient(135deg, #f87171, #ef4444);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      padding-left: 12px;
+      border-left: 4px solid #ef4444;
+    }
+
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin: 20px 0;
+      padding: 14px 18px;
+      background: rgba(30, 41, 59, 0.6);
+      border-radius: 50px;
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.05rem;
+      transition: 0.25s;
+    }
+
+    .sidebar a i {
+      width: 28px;
+      font-size: 1.3rem;
+    }
+
+    .sidebar a:active {
+      background: #ef4444;
+      transform: translateX(8px);
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      display: none;
+      z-index: 1001;
+    }
+
+    .overlay.active {
+      display: block;
+    }
+
+    /* Player Section */
+    .player-screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 0 20px;
+    }
+
+    .logo {
+      width: 160px;
+      height: 160px;
+      background: url('https://cdn-icons-png.flaticon.com/512/727/727245.png') center/cover;
+      background-color: #1e293b;
+      border-radius: 50%;
+      box-shadow: 0 20px 35px rgba(0, 0, 0, 0.4), 0 0 0 5px rgba(239, 68, 68, 0.2);
+      margin-bottom: 20px;
+    }
+
+    .live-badge {
+      background: #ef4444;
+      padding: 6px 18px;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .live-badge i {
+      font-size: 10px;
+    }
+
+    .now-playing-card {
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(12px);
+      padding: 12px 24px;
+      border-radius: 60px;
+      margin: 10px 0;
+      width: 100%;
+      text-align: center;
+    }
+
+    #song {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #facc15;
+      letter-spacing: 0.3px;
+    }
+
+    /* Social Icons */
+    .social-row {
+      display: flex;
+      gap: 24px;
+      margin: 25px 0;
+    }
+
+    .social-row a {
+      background: #1e293b;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.6rem;
+      transition: 0.2s;
+      box-shadow: 0 5px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .social-row a:active {
+      transform: scale(0.92);
+      background: #ef4444;
+    }
+
+    /* Volume Control - Professional com mute */
+    .volume-control {
+      width: 100%;
+      max-width: 300px;
+      margin: 15px 0;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 12px 16px;
+      border-radius: 60px;
+      backdrop-filter: blur(8px);
+    }
+
+    .volume-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .volume-icon {
+      width: 36px;
+      height: 36px;
+      background: #1e293b;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.2s;
+      color: #f1f5f9;
+      font-size: 1rem;
+    }
+
+    .volume-icon:active {
+      transform: scale(0.92);
+      background: #ef4444;
+    }
+
+    .volume-slider {
+      flex: 1;
+      height: 5px;
+      -webkit-appearance: none;
+      background: #334155;
+      border-radius: 10px;
+      outline: none;
+    }
+
+    .volume-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      background: #ef4444;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 8px #ef4444;
+    }
+
+    .volume-value {
+      min-width: 45px;
+      font-size: 0.75rem;
+      color: #94a3b8;
+      text-align: right;
+    }
+
+    /* Play Button */
+    .play-wrapper {
+      margin: 20px 0;
+    }
+
+    .play-btn {
+      width: 90px;
+      height: 90px;
+      background: linear-gradient(145deg, #ef4444, #b91c1c);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      font-size: 42px;
+      cursor: pointer;
+      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.5);
+      transition: 0.08s linear;
+    }
+
+    .play-btn:active {
+      transform: scale(0.94);
+    }
+
+    /* ✅ AdMob/AdSense Banner Area - CORRIGIDO */
+    .ad-section {
+      width: 100%;
+      margin: 20px 0 10px;
+      background: rgba(15, 23, 42, 0.5);
+      border-radius: 20px;
+      padding: 8px;
+      backdrop-filter: blur(8px);
+      border: 0.5px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .ad-label {
+      font-size: 10px;
+      text-align: center;
+      color: #94a3b8;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .ad-container {
+      min-height: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0f172a60;
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      width: 100%;
+    }
+
+    /* Garante que o elemento do AdSense ocupe o espaço correto */
+    .ad-container ins.adsbygoogle {
+      width: 100% !important;
+      margin: 0 !important;
+      display: block !important;
+    }
+
+    /* Fallback visual para quando o anúncio não carrega */
+    #adFallback {
+      text-align: center;
+      color: #64748b;
+      font-size: 11px;
+      padding: 10px;
+      width: 100%;
+    }
+
+    /* Form & Timer Pages */
+    .form-screen, .timer-screen {
+      display: none;
+      padding: 80px 16px 30px;
+      min-height: 100vh;
+    }
+
+    .glass-card {
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(20px);
+      border-radius: 32px;
+      padding: 28px 20px;
+      border: 1px solid rgba(239, 68, 68, 0.25);
+    }
+
+    .glass-card h2 {
+      font-size: 1.8rem;
+      margin-bottom: 24px;
+      text-align: center;
+      background: linear-gradient(135deg, #fff, #f87171);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 15px;
+      margin: 12px 0;
+      background: #1e293b;
+      border: none;
+      border-radius: 60px;
+      color: white;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(95deg, #22c55e, #16a34a);
+      border: none;
+      border-radius: 60px;
+      font-weight: bold;
+      font-size: 1.1rem;
+      color: white;
+      margin-top: 16px;
+      cursor: pointer;
+    }
+
+    .btn-warning {
+      background: linear-gradient(95deg, #f59e0b, #d97706);
+    }
+
+    #countdown {
+      font-size: 2rem;
+      text-align: center;
+      margin-top: 20px;
+      font-family: monospace;
+      font-weight: bold;
+      background: #00000055;
+      padding: 12px;
+      border-radius: 50px;
+    }
+
+    .feedback-msg {
+      text-align: center;
+      margin-top: 12px;
+      font-size: 0.85rem;
+      color: #86efac;
+    }
+
+    /* Hide scrollbar */
+    ::-webkit-scrollbar {
+      width: 0px;
+    }
+  </style>
+</head>
+<body>
+
+<button class="menu-btn" id="menuBtn">
+  <i class="fas fa-bars"></i>
+</button>
+
+<div class="sidebar" id="sidebar">
+  <h3>MEGA POP</h3>
+  <a href="#" onclick="showSection('player')"><i class="fas fa-headphones"></i> Rádio</a>
+  <a href="#" onclick="showSection('form')"><i class="fas fa-envelope"></i> Pedir Música</a>
+  <a href="#" onclick="showSection('timer')"><i class="fas fa-clock"></i> Sleep Timer</a>
+</div>
+
+<div class="overlay" id="overlay"></div>
+
+<!-- Player Principal -->
+<div id="playerSection" class="player-screen" style="display: flex;">
+  <div class="logo"></div>
+  <div class="live-badge">
+    <i class="fas fa-circle" style="font-size: 8px;"></i> AO VIVO
+  </div>
+  <div class="now-playing-card">
+    <i class="fas fa-music" style="margin-right: 6px;"></i> <span id="song">Carregando...</span>
+  </div>
+  
+  <div class="social-row">
+    <a href="https://instagram.com"><i class="fab fa-instagram"></i></a>
+    <a href="https://twitter.com"><i class="fab fa-twitter"></i></a>
+    <a href="https://facebook.com"><i class="fab fa-facebook-f"></i></a>
+    <a href="https://lakeonedayz.github.io/apps/megapop"><i class="fas fa-globe"></i></a>
+  </div>
+
+  <!-- Controle de Volume Profissional com Mute -->
+  <div class="volume-control">
+    <div class="volume-row">
+      <div class="volume-icon" id="muteBtn">
+        <i class="fas fa-volume-up" id="volumeIcon"></i>
+      </div>
+      <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.01" value="0.7">
+      <span class="volume-value" id="volumePercent">70%</span>
+    </div>
+  </div>
+
+  <div class="play-wrapper">
+    <button class="play-btn" id="playPauseBtn">
+      <i class="fas fa-pause" id="playIcon"></i>
+    </button>
+  </div>
+
+  <!-- ✅ Banner AdSense Corrigido com Fallback e Debug -->
+  <div class="ad-section">
+    <div class="ad-label">
+      <i class="fas fa-ad"></i> Publicidade 
+      <span id="adStatus" style="margin-left:8px;color:#64748b;font-size:9px;"></span>
+    </div>
+    <div class="ad-container" id="adContainer">
+      <!-- Fallback visual enquanto o anúncio carrega -->
+      <div id="adFallback" style="text-align:center;color:#64748b;font-size:11px;padding:10px;width:100%;">
+        <i class="fas fa-spinner fa-pulse"></i> Carregando anúncio...
+      </div>
+      
+      <!-- Bloco AdSense - IDs de teste oficiais do Google -->
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-3940256099942544"
+           data-ad-slot="9214589741"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+    </div>
+  </div>
+</div>
+
+<!-- Pedido de Música -->
+<div id="formSection" class="form-screen">
+  <div class="glass-card">
+    <h2><i class="fas fa-microphone-alt"></i> Pedido Musical</h2>
+    <input type="text" id="userName" class="input-field" placeholder="Seu nome">
+    <input type="tel" id="userWhats" class="input-field" placeholder="WhatsApp (apenas números)">
+    <input type="text" id="musicName" class="input-field" placeholder="Música / Artista">
+    <button id="sendRequest" class="btn-primary"><i class="fas fa-paper-plane"></i> Enviar Pedido</button>
+    <div id="requestFeedback" class="feedback-msg"></div>
+  </div>
+</div>
+
+<!-- Sleep Timer -->
+<div id="timerSection" class="timer-screen">
+  <div class="glass-card">
+    <h2><i class="fas fa-bed"></i> Sleep Timer</h2>
+    <input type="number" id="timerMinutes" class="input-field" placeholder="Minutos (ex: 15, 30, 60)">
+    <button id="startTimerBtn" class="btn-primary btn-warning"><i class="fas fa-play-circle"></i> Iniciar Timer</button>
+    <div id="countdown" style="margin-top: 25px;">00:00</div>
+  </div>
+</div>
+
+<audio id="radioStream" preload="auto" src="https://playerservices.streamtheworld.com/api/livestream-redirect/RADIO_89FM_ADP.aac"></audio>
+
+<script>
+  // ==========================================
+  // ✅ INICIALIZAÇÃO DO ADSENSE COM TRATAMENTO
+  // ==========================================
+  function initAdSense() {
+    const adContainer = document.getElementById('adContainer');
+    const adFallback = document.getElementById('adFallback');
+    const adStatus = document.getElementById('adStatus');
+    
+    // Verifica se o SDK está disponível
+    if (typeof adsbygoogle === 'undefined') {
+      if (adStatus) adStatus.textContent = '⏳ Aguardando SDK...';
+      console.log('AdSense: SDK ainda não disponível, tentando novamente em 500ms...');
+      setTimeout(initAdSense, 500);
+      return;
+    }
+    
+    try {
+      // Push com callbacks de sucesso e erro
+      (adsbygoogle = window.adsbygoogle || []).push({
+        html: adContainer,
+        onAdLoaded: function() {
+          if (adFallback) adFallback.style.display = 'none';
+          if (adStatus) {
+            adStatus.textContent = '✅ Anúncio ativo';
+            adStatus.style.color = '#22c55e';
+          }
+          console.log('✅ AdSense: Anúncio carregado com sucesso!');
+        },
+        onAdError: function(error) {
+          console.warn('⚠️ AdSense: Erro ao carregar anúncio:', error.getMessage());
+          if (adFallback) {
+            adFallback.innerHTML = '📭 Anúncio indisponível<br><small style="font-size:9px;opacity:0.7">Verifique sua conexão ou desative o AdBlock</small>';
+          }
+          if (adStatus) {
+            adStatus.textContent = '⚠️ Não carregou';
+            adStatus.style.color = '#f59e0b';
+          }
+        }
+      });
+    } catch(e) {
+      console.error('❌ AdSense: Erro crítico na inicialização:', e);
+      if (adFallback) {
+        adFallback.textContent = '⚠️ Erro ao carregar anúncio';
+      }
+    }
+  }
+
+  // Inicializa o AdSense quando o DOM estiver pronto
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAdSense);
+  } else {
+    initAdSense();
+  }
+
+  // ==========================================
+  // 🔧 RESTANTE DO CÓDIGO DO APP
+  // ==========================================
+  
+  // Elementos
+  const audio = document.getElementById('radioStream');
+  const playPauseBtn = document.getElementById('playPauseBtn');
+  const playIcon = document.getElementById('playIcon');
+  const volumeSlider = document.getElementById('volumeSlider');
+  const volumeIcon = document.getElementById('volumeIcon');
+  const volumePercent = document.getElementById('volumePercent');
+  const muteBtn = document.getElementById('muteBtn');
+  const songElement = document.getElementById('song');
+  
+  // Sidebar
+  const sidebar = document.getElementById('sidebar');
+  const overlayDiv = document.getElementById('overlay');
+  const menuBtn = document.getElementById('menuBtn');
+  
+  // Seções
+  const playerDiv = document.getElementById('playerSection');
+  const formDiv = document.getElementById('formSection');
+  const timerDiv = document.getElementById('timerSection');
+  
+  // Estado do volume e mute
+  let previousVolume = 0.7;
+  let isMuted = false;
+  
+  // Função para atualizar ícone do volume baseado no valor atual
+  function updateVolumeIcon(volume) {
+    if (volume === 0 || isMuted) {
+      volumeIcon.className = 'fas fa-volume-mute';
+    } else if (volume < 0.5) {
+      volumeIcon.className = 'fas fa-volume-down';
+    } else {
+      volumeIcon.className = 'fas fa-volume-up';
+    }
+  }
+  
+  // Função para atualizar percentual exibido
+  function updateVolumePercent(volume) {
+    const percent = Math.round(volume * 100);
+    volumePercent.textContent = `${percent}%`;
+  }
+  
+  // Função para definir volume (respeitando mute)
+  function setVolume(value) {
+    if (isMuted) {
+      previousVolume = value;
+      volumeSlider.value = value;
+      updateVolumePercent(value);
+      updateVolumeIcon(value);
+    } else {
+      audio.volume = value;
+      volumeSlider.value = value;
+      updateVolumePercent(value);
+      updateVolumeIcon(value);
+      localStorage.setItem('megapop_volume', value);
+    }
+  }
+  
+  // Função para alternar mute
+  function toggleMute() {
+    if (isMuted) {
+      isMuted = false;
+      audio.volume = previousVolume;
+      volumeSlider.value = previousVolume;
+      updateVolumePercent(previousVolume);
+      updateVolumeIcon(previousVolume);
+    } else {
+      isMuted = true;
+      previousVolume = audio.volume;
+      audio.volume = 0;
+      volumeSlider.value = 0;
+      updateVolumePercent(0);
+      updateVolumeIcon(0);
+    }
+  }
+  
+  // Eventos do volume
+  volumeSlider.addEventListener('input', (e) => {
+    const val = parseFloat(e.target.value);
+    if (isMuted) {
+      isMuted = false;
+      audio.volume = val;
+      previousVolume = val;
+      updateVolumeIcon(val);
+      updateVolumePercent(val);
+      localStorage.setItem('megapop_volume', val);
+    } else {
+      audio.volume = val;
+      previousVolume = val;
+      updateVolumeIcon(val);
+      updateVolumePercent(val);
+      localStorage.setItem('megapop_volume', val);
+    }
+  });
+  
+  muteBtn.addEventListener('click', toggleMute);
+  
+  // Função mostrar seção
+  window.showSection = function(section) {
+    playerDiv.style.display = 'none';
+    formDiv.style.display = 'none';
+    timerDiv.style.display = 'none';
+    
+    if (section === 'player') playerDiv.style.display = 'flex';
+    if (section === 'form') formDiv.style.display = 'block';
+    if (section === 'timer') timerDiv.style.display = 'block';
+    
+    sidebar.classList.remove('active');
+    overlayDiv.classList.remove('active');
+  };
+  
+  // Menu toggle
+  menuBtn.addEventListener('click', () => {
+    sidebar.classList.add('active');
+    overlayDiv.classList.add('active');
+  });
+  
+  overlayDiv.addEventListener('click', () => {
+    sidebar.classList.remove('active');
+    overlayDiv.classList.remove('active');
+  });
+  
+  // Autoplay profissional + ícone sincronizado
+  function startStreaming() {
+    const savedVol = localStorage.getItem('megapop_volume');
+    if (savedVol !== null) {
+      const vol = parseFloat(savedVol);
+      audio.volume = vol;
+      volumeSlider.value = vol;
+      previousVolume = vol;
+      updateVolumePercent(vol);
+      updateVolumeIcon(vol);
+    } else {
+      audio.volume = 0.7;
+      volumeSlider.value = 0.7;
+      previousVolume = 0.7;
+      updateVolumePercent(0.7);
+      updateVolumeIcon(0.7);
+    }
+    
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        playIcon.className = "fas fa-pause";
+      }).catch((err) => {
+        console.log("Autoplay bloqueado: ", err);
+        playIcon.className = "fas fa-play";
+        let tip = document.createElement('div');
+        tip.innerText = "🔊 Toque no play para ouvir";
+        tip.style.position = "fixed";
+        tip.style.bottom = "90px";
+        tip.style.left = "50%";
+        tip.style.transform = "translateX(-50%)";
+        tip.style.background = "#ef4444ee";
+        tip.style.padding = "8px 18px";
+        tip.style.borderRadius = "40px";
+        tip.style.fontSize = "13px";
+        tip.style.zIndex = "999";
+        tip.style.backdropFilter = "blur(8px)";
+        tip.style.whiteSpace = "nowrap";
+        document.body.appendChild(tip);
+        setTimeout(() => tip.remove(), 2800);
+      });
+    }
+  }
+  
+  // Quando a página carrega, tenta iniciar streaming
+  window.addEventListener('load', () => {
+    startStreaming();
+    
+    // Simulação de now playing com faixas modernas
+    const tracks = [
+      "🎧 PEDRO SAMPAIO - POC POC", "🔥 ANITTA - BELLAKEO", "💃 LUDMILLA - MALDITA",
+      "🌟 ZAYN - LOVE LIKE THIS", "⚡ ALANIS MORISSETTE - IRONIC", "🎤 IVETE SANGALO - MACETADA",
+      "🚀 THE WEEKND - SAVE YOUR TEARS", "💎 DJ GABY - FULANINHO"
+    ];
+    let index = 0;
+    setInterval(() => {
+      songElement.textContent = tracks[index % tracks.length];
+      index++;
+    }, 5000);
+  });
+  
+  // Play/Pause com ícone correto
+  playPauseBtn.addEventListener('click', () => {
+    if (audio.paused) {
+      audio.play().then(() => {
+        playIcon.className = "fas fa-pause";
+      }).catch(e => {
+        alert("Toque novamente para ativar o som.");
+      });
+    } else {
+      audio.pause();
+      playIcon.className = "fas fa-play";
+    }
+  });
+  
+  // Atualizar ícone quando ocorrer eventos externos
+  audio.onplay = () => playIcon.className = "fas fa-pause";
+  audio.onpause = () => playIcon.className = "fas fa-play";
+  
+  // Sleep Timer profissional
+  let sleepInterval = null;
+  const startTimerBtn = document.getElementById('startTimerBtn');
+  const countdownDisplay = document.getElementById('countdown');
+  
+  function stopTimer() {
+    if (sleepInterval) {
+      clearInterval(sleepInterval);
+      sleepInterval = null;
+    }
+  }
+  
+  function startSleepTimer() {
+    stopTimer();
+    let minutes = parseInt(document.getElementById('timerMinutes').value);
+    if (isNaN(minutes) || minutes <= 0) {
+      countdownDisplay.textContent = "⏰ Insira minutos válidos";
+      return;
+    }
+    let totalSec = minutes * 60;
+    
+    function updateDisplay() {
+      let mins = Math.floor(totalSec / 60);
+      let secs = totalSec % 60;
+      countdownDisplay.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+    updateDisplay();
+    
+    sleepInterval = setInterval(() => {
+      if (totalSec <= 0) {
+        clearInterval(sleepInterval);
+        sleepInterval = null;
+        countdownDisplay.textContent = "⏹️ Rádio pausada";
+        audio.pause();
+        playIcon.className = "fas fa-play";
+        if (Notification.permission === "granted") {
+          new Notification("Rádio Mega Pop", { body: "Sleep timer ativado. A rádio foi pausada." });
+        }
+      } else {
+        totalSec--;
+        updateDisplay();
+      }
+    }, 1000);
+  }
+  
+  if (startTimerBtn) startTimerBtn.addEventListener('click', startSleepTimer);
+  
+  // Pedido de música com feedback profissional
+  const sendBtn = document.getElementById('sendRequest');
+  const feedbackSpan = document.getElementById('requestFeedback');
+  
+  sendBtn.addEventListener('click', () => {
+    const nome = document.getElementById('userName')?.value.trim();
+    const whats = document.getElementById('userWhats')?.value.trim();
+    const musica = document.getElementById('musicName')?.value.trim();
+    
+    if (!nome || !whats || !musica) {
+      feedbackSpan.innerHTML = '<span style="color:#f87171;">❌ Preencha todos os campos!</span>';
+      setTimeout(() => feedbackSpan.innerHTML = '', 2500);
+      return;
+    }
+    if (!/^\d{10,13}$/.test(whats)) {
+      feedbackSpan.innerHTML = '<span style="color:#fbbf24;">⚠️ WhatsApp inválido (apenas números, DDD + 9 dígitos)</span>';
+      setTimeout(() => feedbackSpan.innerHTML = '', 3000);
+      return;
+    }
+    
+    feedbackSpan.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Enviando pedido...';
+    setTimeout(() => {
+      feedbackSpan.innerHTML = '✅ Pedido enviado! Em breve na programação 🎵';
+      document.getElementById('userName').value = '';
+      document.getElementById('userWhats').value = '';
+      document.getElementById('musicName').value = '';
+      setTimeout(() => {
+        if (feedbackSpan) feedbackSpan.innerHTML = '';
+      }, 3500);
+    }, 700);
+  });
+  
+  // Reconexão automática em caso de falha na stream
+  let errorCount = 0;
+  audio.addEventListener('error', () => {
+    console.warn("Erro na stream");
+    if (errorCount < 3) {
+      setTimeout(() => {
+        audio.load();
+        if (!audio.paused) {
+          audio.play().catch(e => console.log);
+        }
+        errorCount++;
+      }, 3500);
+    } else {
+      songElement.textContent = "📡 Reconectando...";
+      setTimeout(() => {
+        audio.load();
+        if (!audio.paused) audio.play().catch(e=>{});
+        errorCount = 0;
+      }, 8000);
+    }
+  });
+  
+  audio.addEventListener('canplay', () => {
+    errorCount = 0;
+    if (!audio.paused) songElement.textContent = "🎧 Ao vivo";
+  });
+  
+  // Suporte para autoplay em mobile após interação
+  function handleUserInteraction() {
+    if (audio.paused && !audio.played.length) {
+      audio.play().then(() => {
+        playIcon.className = "fas fa-pause";
+      }).catch(()=>{});
+    }
+    document.removeEventListener('touchstart', handleUserInteraction);
+    document.removeEventListener('click', handleUserInteraction);
+  }
+  document.addEventListener('touchstart', handleUserInteraction);
+  document.addEventListener('click', handleUserInteraction);
+  
+  // Notificação permission (opcional)
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+  
+  // Impedir que o menu seja ativado ao clicar em links
+  document.querySelectorAll('.sidebar a').forEach(link => {
+    link.addEventListener('click', (e) => {
+      sidebar.classList.remove('active');
+      overlayDiv.classList.remove('active');
+    });
+  });
+
+  // 🔍 Debug opcional - Remova em produção
+  setTimeout(() => {
+    console.log('📊 AdSense Debug:');
+    console.log('- adsbygoogle definido?', typeof window.adsbygoogle);
+    console.log('- Anúncios no DOM:', document.querySelectorAll('ins.adsbygoogle').length);
+    const ins = document.querySelector('ins.adsbygoogle');
+    if (ins) {
+      console.log('- data-ad-client:', ins.dataset.adClient);
+      console.log('- data-ad-slot:', ins.dataset.adSlot);
+    }
+  }, 5000);
+</script>
+</body>
+</html>
